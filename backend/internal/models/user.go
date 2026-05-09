@@ -9,16 +9,22 @@ import(
 //Pode assumir diferente papeis:
 //
 // - admin
+//
 // - coordenador
+//
 // - avaliador
+//
 // - aluno
 type User struct {
 
 	//Campos padrão adicionados pelo GORM
 	//
 	//ID
+	//
 	//CreatedAt
+	//
 	//UpdatedAt
+	//
 	//DeletedAt
 	gorm.Model
 

@@ -19,8 +19,11 @@ var DB *gorm.DB
 //ConnectDatabase realiza:
 //
 //1. Carrega as variáveis de ambiente do arquivo .env
+//
 //2. Montagem da string de conexão (DSN) usando as variáveis de ambiente carregadas
+//
 //3. Estabelece a conexão com o banco de dados usando GORM
+//
 //4. Realiza a migração automática
 func ConnectDatabase(){
 

@@ -10,6 +10,7 @@ import (
 //UserService concentra as regras de negócio relacionadas aos usuários
 //
 //Camada responsável por fazr ponte entre:
+//
 // handlers < - > repositories
 type UserService struct{
 	repository *repositories.UserRepository

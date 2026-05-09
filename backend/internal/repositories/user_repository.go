@@ -8,6 +8,7 @@ import (
 //UserRepository é responsável pelas operações de acesso ao banco relacionadas aos usuários
 //
 //Não contém regra de negócio
+//
 //Apenas comunicação com banco de dados
 type UserRepository struct{}
 
