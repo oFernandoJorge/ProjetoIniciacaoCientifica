@@ -32,7 +32,7 @@ func ConnectDatabase(){
 
 	// Verifica se a variável de erro contém algum valor (se houve problema ao carregar o .env)
 	if er != nil {
-		log.Fatal("Error loading .env file")
+		log.Println("[WARN]Error loading .env file")
 	}
 
 	//Recupera as variáveis de ambiente necessárias para a conexão com o banco de dados
@@ -58,7 +58,7 @@ func ConnectDatabase(){
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Fatal("Failed to connect to database: ", err)
+		log.Println("[WARN]Failed to connect to database: ", err)
 	}
 
 	//Armazena conexão na variável global
@@ -74,7 +74,7 @@ func Migrate() {
 	err := DB.AutoMigrate(&models.User{})
 
 	if err != nil {
-		log.Fatal("Failed to migrate database: ", err)
+		log.Println("[WARN]Failed to migrate database: ", err)
 	}
 
 	log.Println("Database migrated successfully")
