@@ -1,4 +1,4 @@
-package models
+package user
 
 import(
 	"gorm.io/gorm"
@@ -29,11 +29,11 @@ type User struct {
 	gorm.Model
 
 	//Nome completo do usuário
-	Name     string `json:"name"`
+	Name     string
 	//Email do usuário, deve ser único
-	Email    string `json:"email" gorm:"unique"`
+	Email    string `gorm:"unique"`
 	//Senha do usuário, deve ser armazenada de forma segura (hash)
-	Password string `json:"password"`
+	Password string
 	//Papel/Permissão do usuário no sistema
-	Role	 string `json:"role"`
+	Role	 string
 }

@@ -5,37 +5,28 @@ import (
 	"log"
 	"os"
 
-	"ProjetoIniciacaoCientifica/internal/models"
-
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 // DB é a instância global do banco de dados
-//Variável utilizada pelas camadas de repository
+// utilizada pelos repositórios
 var DB *gorm.DB
 
-//ConnectDatabase realiza:
+// ConnectDatabase realiza:
 //
-//1. Carrega as variáveis de ambiente do arquivo .env
-//
-//2. Montagem da string de conexão (DSN) usando as variáveis de ambiente carregadas
-//
-//3. Estabelece a conexão com o banco de dados usando GORM
-//
-//4. Realiza a migração automática
-func ConnectDatabase(){
+// 1. Carrega variáveis de ambiente (.env)
+// 2. Monta string de conexão (DSN)
+// 3. Conecta no PostgreSQL usando GORM
+func ConnectDatabase() {
 
-	//Carrega as variáveis de ambiente do arquivo .env
-	er := godotenv.Load()
-
-	// Verifica se a variável de erro contém algum valor (se houve problema ao carregar o .env)
-	if er != nil {
-		log.Println("[WARN]Error loading .env file")
+	// Carrega .env (opcional em produção)
+	if err := godotenv.Load(); err != nil {
+		log.Println("[WARN] .env not found, using system env vars")
 	}
 
-	//Recupera as variáveis de ambiente necessárias para a conexão com o banco de dados
+	// Variáveis de ambiente do banco
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	user := os.Getenv("DB_USER")
@@ -43,7 +34,7 @@ func ConnectDatabase(){
 	dbname := os.Getenv("DB_NAME")
 	sslmode := os.Getenv("DB_SSLMODE")
 
-	//Montagem da string de conexão (DSN) usando as variáveis de ambiente carregadas
+	// DSN do PostgreSQL
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 		host,
@@ -54,28 +45,14 @@ func ConnectDatabase(){
 		sslmode,
 	)
 
-	//Estabelece a conexão com o banco de dados usando GORM
+	// Conexão com banco via GORM
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Println("[WARN]Failed to connect to database: ", err)
+		log.Fatal("[ERROR] failed to connect database:", err)
 	}
 
-	//Armazena conexão na variável global
 	DB = database
 
 	log.Println("Database connection established")
-
-	Migrate()
-}
-
-//Migrate executa a criação automática das tabelas definidas nos models
-func Migrate() {
-	err := DB.AutoMigrate(&models.User{})
-
-	if err != nil {
-		log.Println("[WARN]Failed to migrate database: ", err)
-	}
-
-	log.Println("Database migrated successfully")
 }

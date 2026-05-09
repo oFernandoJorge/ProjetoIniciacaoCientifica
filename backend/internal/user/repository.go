@@ -1,8 +1,7 @@
-package repositories
+package user
 
 import (
 	"ProjetoIniciacaoCientifica/internal/config"
-	"ProjetoIniciacaoCientifica/internal/models"
 )
 
 //UserRepository é responsável pelas operações de acesso ao banco relacionadas aos usuários
@@ -10,21 +9,21 @@ import (
 //Não contém regra de negócio
 //
 //Apenas comunicação com banco de dados
-type UserRepository struct{}
+type repository struct{}
 
 //Cria uma nova instância do UserRepository
-func NewUserRepository() *UserRepository{
-	return &UserRepository{}
+func NewRepository() Repository{
+	return &repository{}
 }
 
 //Insere um novo usuário no banco de dados
-func (r *UserRepository) Create(user *models.User) error{
+func (r *repository) Create(user *User) error{
 	return config.DB.Create(user).Error
 }
 
 //FindAll retorna todos os usuários cadastrados no banco de dados
-func (r* UserRepository) FindAll()([]models.User, error){
-	var users []models.User
+func (r* repository) FindAll()([]User, error){
+	var users []User
 
 	err := config.DB.Find(&users).Error
 
@@ -32,8 +31,8 @@ func (r* UserRepository) FindAll()([]models.User, error){
 }
 
 //FindByID retorna um usuário específico com base no ID fornecido
-func (r *UserRepository) FindByID(id uint)(*models.User, error){
-	var user models.User
+func (r *repository) FindByID(id uint)(*User, error){
+	var user User
 
 	err := config.DB.First(&user, id).Error
 
