@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	
 	"ProjetoIniciacaoCientifica/internal/config"
+	"ProjetoIniciacaoCientifica/internal/routes"
 )
 
 // @title Projeto Iniciação Científica API
@@ -34,6 +35,9 @@ func main() {
 			"message": "API funcionando",
 		})
 	})
+
+	//Registra rotas da aplicação
+	routes.SetupRoutes(r)
 
 	//Inicia o servidor na porta 8080
 	r.Run(":8080")
