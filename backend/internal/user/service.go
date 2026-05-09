@@ -13,7 +13,6 @@ type Service struct {
 	Repo Repository
 }
 
-
 // NewUserService cria uma nova instância do UserService
 func NewService(repo Repository) *Service {
 	return &Service{Repo: repo}
@@ -51,7 +50,7 @@ func (s *Service) Create(user *User) error {
 
 // GetAllUsers retorna todos os usuários cadastrados
 func (s *Service) FindAll() ([]UserResponse, error) {
-	
+
 	users, err := s.Repo.FindAll()
 	if err != nil {
 		return nil, err
@@ -70,6 +69,16 @@ func (s *Service) FindAll() ([]UserResponse, error) {
 }
 
 // GetUserByID busca usuário por ID
-func (s *Service) FindByID(id uint) (*User, error) {
-	return s.Repo.FindByID(id)
+func (s *Service) FindByID(id uint) (*UserResponse, error) {
+	user, err := s.Repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UserResponse{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+		Role:  user.Role,
+	}, nil
 }
