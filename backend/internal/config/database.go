@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"ProjetoIniciacaoCientifica/internal/models"
+
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -45,4 +47,16 @@ func ConnectDatabase(){
 	DB = database
 
 	log.Println("Database connection established")
+
+	Migrate()
+}
+
+func Migrate() {
+	err := DB.AutoMigrate(&models.User{})
+
+	if err != nil {
+		log.Fatal("Failed to migrate database: ", err)
+	}
+
+	log.Println("Database migrated successfully")
 }
