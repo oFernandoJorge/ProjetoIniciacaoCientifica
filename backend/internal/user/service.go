@@ -50,8 +50,23 @@ func (s *Service) Create(user *User) error {
 }
 
 // GetAllUsers retorna todos os usuários cadastrados
-func (s *Service) FindAll() ([]User, error) {
-	return s.Repo.FindAll()
+func (s *Service) FindAll() ([]UserResponse, error) {
+	
+	users, err := s.Repo.FindAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var responses []UserResponse
+	for _, u := range users {
+		responses = append(responses, UserResponse{
+			ID:    u.ID,
+			Name:  u.Name,
+			Email: u.Email,
+			Role:  u.Role,
+		})
+	}
+	return responses, nil
 }
 
 // GetUserByID busca usuário por ID

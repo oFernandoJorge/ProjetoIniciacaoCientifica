@@ -48,8 +48,13 @@ func (h *Handler) Create(c *gin.Context){
 //GetAllUsers retorna todos os usuários cadastrados
 func (h *Handler) FindAll(c *gin.Context){
 
-	users, _ := h.service.FindAll()
-	c.JSON(http.StatusOK, users)
+	users, err := h.service.FindAll()
+
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200,users)
 }
 
 //GetUserByID busca usuários pelo ID
