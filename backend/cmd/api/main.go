@@ -4,15 +4,20 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	
+	"ProjetoIniciacaoCientifica/internal/config"
 )
 
 func main() {
-	router := gin.Default()
+	config.ConnectDatabase()
 
-	router.GET("/ping", func(c *gin.Context) {
+	r := gin.Default()
+
+	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "API FUNCIONANDO",
+			"message": "API funcionando",
 		})
 	})
-	router.Run(":8080")
+
+	r.Run(":8080")
 }
