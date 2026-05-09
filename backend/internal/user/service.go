@@ -4,7 +4,7 @@ import (
 	"errors"
 )
 
-// UserService concentra as regras de negócio relacionadas aos usuários
+// Service concentra as regras de negócio relacionadas aos usuários
 //
 // Camada responsável por fazr ponte entre:
 //
@@ -13,12 +13,12 @@ type Service struct {
 	Repo Repository
 }
 
-// NewUserService cria uma nova instância do UserService
+// NewService cria uma nova instância do UserService
 func NewService(repo Repository) *Service {
 	return &Service{Repo: repo}
 }
 
-// CreateUser raliza validações de negócio antes de criar um usuário
+// Create raliza validações de negócio antes de criar um usuário
 func (s *Service) Create(user *User) error {
 
 	if user.Name == "" {
@@ -48,7 +48,7 @@ func (s *Service) Create(user *User) error {
 	return s.Repo.Create(user)
 }
 
-// GetAllUsers retorna todos os usuários cadastrados
+// FindAll retorna todos os usuários cadastrados
 func (s *Service) FindAll() ([]UserResponse, error) {
 
 	users, err := s.Repo.FindAll()
@@ -68,7 +68,7 @@ func (s *Service) FindAll() ([]UserResponse, error) {
 	return responses, nil
 }
 
-// GetUserByID busca usuário por ID
+// FindByID busca usuário por ID
 func (s *Service) FindByID(id uint) (*UserResponse, error) {
 	user, err := s.Repo.FindByID(id)
 	if err != nil {
