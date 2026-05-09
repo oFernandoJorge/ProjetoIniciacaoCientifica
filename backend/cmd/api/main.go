@@ -1,10 +1,11 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	
+
 	"ProjetoIniciacaoCientifica/internal/config"
 	"ProjetoIniciacaoCientifica/internal/routes"
 )
@@ -40,5 +41,5 @@ func main() {
 	routes.SetupRoutes(r)
 
 	//Inicia o servidor na porta 8080
-	r.Run(":8080")
+	log.Fatal(r.Run(":8080"))
 }
