@@ -10,12 +10,12 @@ import (
 //
 // handlers < - > repositories
 type Service struct {
-	Repo Repository
+	repo Repository
 }
 
 // NewService cria uma nova instância do UserService
 func NewService(repo Repository) *Service {
-	return &Service{Repo: repo}
+	return &Service{repo: repo}
 }
 
 // Create raliza validações de negócio antes de criar um usuário
@@ -45,13 +45,13 @@ func (s *Service) Create(user *User) error {
 	}
 
 	//Chama repository para persistir usuário
-	return s.Repo.Create(user)
+	return s.repo.Create(user)
 }
 
 // FindAll retorna todos os usuários cadastrados
 func (s *Service) FindAll() ([]UserResponse, error) {
 
-	users, err := s.Repo.FindAll()
+	users, err := s.repo.FindAll()
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (s *Service) FindAll() ([]UserResponse, error) {
 
 // FindByID busca usuário por ID
 func (s *Service) FindByID(id uint) (*UserResponse, error) {
-	user, err := s.Repo.FindByID(id)
+	user, err := s.repo.FindByID(id)
 	if err != nil {
 		return nil, err
 	}
