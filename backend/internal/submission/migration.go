@@ -1,11 +1,8 @@
-package user
+package submission
 
 import "gorm.io/gorm"
 
-// Migrate é responsabilidade do módulo User
-// Criar/atualizar tabelas relacionadas ao domínio User
+// Migrate executa migration do módulo submission
 func Migrate(db *gorm.DB) error {
-	return db.AutoMigrate(
-		&User{},
-	)
+	return db.AutoMigrate(&Submission{})
 }

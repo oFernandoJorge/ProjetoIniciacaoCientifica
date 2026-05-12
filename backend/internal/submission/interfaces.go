@@ -1,7 +1,7 @@
-package user
+package submission
 
+// Repository define comportamentos do módulo submission
 type Repository interface {
-	Create(user *User) error
-	FindAll() ([]User, error)
-	FindByID(id uint) (*User, error)
+	Create(submission *Submission) error
+	FindAll() ([]Submission, error)
 }

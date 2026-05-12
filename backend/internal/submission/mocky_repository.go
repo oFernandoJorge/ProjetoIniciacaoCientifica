@@ -1,15 +1,14 @@
-package user
+package submission
 
-type mockRepository struct {}
+// mockRepository simula repository em testes unitários
+type mockRepository struct{}
 
-func (m *mockRepository) Create(user *User) error {
+// Create simula criação de submissão
+func (m *mockRepository) Create(submission *Submission) error {
 	return nil
 }
 
-func (m *mockRepository) FindAll() ([]User, error) {
-	return []User{},nil
-}
-
-func (m *mockRepository) FindByID(id uint) (*User, error) {
-	return &User{}, nil
+// FindAll simula listagem de submissões
+func (m *mockRepository) FindAll() ([]Submission, error) {
+	return []Submission{}, nil
 }

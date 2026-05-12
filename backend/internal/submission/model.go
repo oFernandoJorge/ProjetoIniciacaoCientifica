@@ -1,39 +1,17 @@
-package user
+package submission
 
-import(
-	"gorm.io/gorm"
-)
+import "gorm.io/gorm"
 
-//User representa usuários do sistema
-//
-//Pode assumir diferente papeis:
-//
-// - admin
-//
-// - coordenador
-//
-// - avaliador
-//
-// - aluno
-type User struct {
-
-	//Campos padrão adicionados pelo GORM
-	//
-	//ID
-	//
-	//CreatedAt
-	//
-	//UpdatedAt
-	//
-	//DeletedAt
+// Submission representa trabalho submetido
+// ao evento acadêmico
+type Submission struct {
 	gorm.Model
-
-	//Nome completo do usuário
-	Name     string
-	//Email do usuário, deve ser único
-	Email    string `gorm:"unique"`
-	//Senha do usuário, deve ser armazenada de forma segura (hash)
-	Password string
-	//Papel/Permissão do usuário no sistema
-	Role	 string
+	Title            string
+	PresenterName    string
+	Course           string
+	KnowledgeArea    string
+	Modality         string
+	Campus           string
+	AdvisorName      string
+	PresentationType string
 }

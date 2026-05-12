@@ -1,66 +1,52 @@
-package submission
+package user
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-// Handler controla endpoints do módulo
+// Handler controla endpoints HTTP
 type Handler struct {
 	service *Service
 }
 
-// NewHandler cria handler
+// NewHandler cria novo handler
 func NewHandler(service *Service) *Handler {
 	return &Handler{
 		service: service,
 	}
 }
 
-// Create cria submissão
+// Create cria usuário
 func (h *Handler) Create(c *gin.Context) {
-
-	var submission Submission
-
-	if err := c.ShouldBindJSON(&submission); err != nil {
-
+	var user User
+	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
-
 		return
 	}
-
-	err := h.service.Create(&submission)
-
+	err := h.service.Create(&user)
 	if err != nil {
-
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
-
 		return
 	}
-
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "submissão criada com sucesso",
+		"message": "usuário criado com sucesso",
 	})
 }
 
-// FindAll retorna submissões
+// FindAll retorna usuários
+
 func (h *Handler) FindAll(c *gin.Context) {
-
-	submissions, err := h.service.FindAll()
-
+	users, err := h.service.FindAll()
 	if err != nil {
-
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
-
 		return
 	}
-
-	c.JSON(http.StatusOK, submissions)
+	c.JSON(http.StatusOK, users)
 }

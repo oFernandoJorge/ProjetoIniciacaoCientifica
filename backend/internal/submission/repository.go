@@ -1,44 +1,26 @@
-package user
+package submission
 
-import (
-	"ProjetoIniciacaoCientifica/internal/config"
-)
+import "ProjetoIniciacaoCientifica/internal/config"
 
-//UserRepository é responsável pelas operações de acesso ao banco relacionadas aos usuários
-//
-//Não contém regra de negócio
-//
-//Apenas comunicação com banco de dados
+// repository implementa acesso ao banco
 type repository struct{}
 
-//Cria uma nova instância do UserRepository
-func NewRepository() Repository{
+// NewRepository cria repository concreto
+func NewRepository() Repository {
 	return &repository{}
 }
 
-//Insere um novo usuário no banco de dados
-func (r *repository) Create(user *User) error{
-	return config.DB.Create(user).Error
+// Create cria submissão
+func (r *repository) Create(submission *Submission) error {
+	return config.DB.Create(submission).Error
 }
 
-//FindAll retorna todos os usuários cadastrados no banco de dados
-func (r* repository) FindAll()([]User, error){
-	var users []User
+// FindAll retorna submissões
+func (r *repository) FindAll() ([]Submission, error) {
 
-	err := config.DB.Find(&users).Error
+	var submissions []Submission
 
-	return users, err
-}
+	err := config.DB.Find(&submissions).Error
 
-//FindByID retorna um usuário específico com base no ID fornecido
-func (r *repository) FindByID(id uint)(*User, error){
-	var user User
-
-	err := config.DB.First(&user, id).Error
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
+	return submissions, err
 }

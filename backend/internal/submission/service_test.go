@@ -1,77 +1,103 @@
-package user
+package submission
 
 import "testing"
 
-func TestCreateUser(t *testing.T) {
+// TestCreateSubmissionSuccess testa criação válida
+func TestCreateSubmissionSuccess(t *testing.T) {
 
 	mockRepo := &mockRepository{}
+
 	service := NewService(mockRepo)
 
-	user := &User{
-
-		Name: "Fernando",
-		Email: "fernando@email.com",
-		Password: "123456",
-		Role: "admin",
+	submission := &Submission{
+		Title:            "Sistema Inteligente",
+		PresenterName:    "Fernando",
+		Course:           "ADS",
+		KnowledgeArea:    "Tecnologia",
+		Modality:         "E-POSTER",
+		Campus:           "Fortaleza",
+		AdvisorName:      "Professor X",
+		PresentationType: "Oral",
 	}
 
-	err := service.Create(user)
+	err := service.Create(submission)
 
 	if err != nil {
-		t.Errorf("excepted nil, got %v", err)
+		t.Errorf("expected nil, got %v", err)
 	}
 }
 
-func TestCreateUserWithoutName(t *testing.T) {
+// TestCreateSubmissionWithoutTitle testa título obrigatório
+func TestCreateSubmissionWithoutTitle(t *testing.T) {
+
 	mockRepo := &mockRepository{}
+
 	service := NewService(mockRepo)
 
-	user := &User{
-		Name: "",
-		Email: "fernando@email.com",
-		Password: "123456",
-		Role: "admin",
+	submission := &Submission{
+		Title:            "",
+		PresenterName:    "Fernando",
+		Course:           "ADS",
+		KnowledgeArea:    "Tecnologia",
+		Modality:         "E-POSTER",
+		Campus:           "Fortaleza",
+		AdvisorName:      "Professor X",
+		PresentationType: "Oral",
 	}
 
-	err := service.Create(user)
+	err := service.Create(submission)
 
-	if err == nil || err.Error() != "O nome do usuário é obrigatório" {
-		t.Errorf("excepted error 'O nome do usuário é obrigatório', got %v", err)
+	if err == nil {
+		t.Errorf("expected error, got nil")
 	}
 }
 
-func TestCreateUserInvalidRole(t *testing.T) {
+// TestCreateSubmissionWithoutPresenter testa apresentador obrigatório
+func TestCreateSubmissionWithoutPresenter(t *testing.T) {
+
 	mockRepo := &mockRepository{}
+
 	service := NewService(mockRepo)
 
-	user := &User{
-		Name: "Fernando",
-		Email: "fernando@email.com",
-		Password: "123456",
-		Role: "teste",
+	submission := &Submission{
+		Title:            "Sistema Inteligente",
+		PresenterName:    "",
+		Course:           "ADS",
+		KnowledgeArea:    "Tecnologia",
+		Modality:         "E-POSTER",
+		Campus:           "Fortaleza",
+		AdvisorName:      "Professor X",
+		PresentationType: "Oral",
 	}
 
-	err := service.Create(user)
+	err := service.Create(submission)
 
-	if err == nil || err.Error() != "O papel do usuário é inválido" {
-		t.Errorf("excepted error 'O papel do usuário é inválido', got %v", err)
+	if err == nil {
+		t.Errorf("expected error, got nil")
 	}
 }
 
-func TestCreateUserWithoutPassword(t *testing.T) {
-	mockRepo := &mockRepository{}
-	service := NewService(mockRepo)	
+// TestCreateSubmissionWithoutCourse testa curso obrigatório
+func TestCreateSubmissionWithoutCourse(t *testing.T) {
 
-	user := &User{
-		Name: "Fernando",
-		Email: "fernando@email.com",
-		Password: "",
-		Role: "admin",
+	mockRepo := &mockRepository{}
+
+	service := NewService(mockRepo)
+
+	submission := &Submission{
+		Title:            "Sistema Inteligente",
+		PresenterName:    "Fernando",
+		Course:           "",
+		KnowledgeArea:    "Tecnologia",
+		Modality:         "E-POSTER",
+		Campus:           "Fortaleza",
+		AdvisorName:      "Professor X",
+		PresentationType: "Oral",
 	}
 
-	err := service.Create(user)
+	err := service.Create(submission)
 
-	if err == nil || err.Error() != "A senha do usuário é obrigatória" {
-		t.Errorf("excepted error 'A senha do usuário é obrigatória', got %v", err)
+	if err == nil {
+		t.Errorf("expected error, got nil")
 	}
 }

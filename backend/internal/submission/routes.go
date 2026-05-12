@@ -1,16 +1,14 @@
-package user
+package submission
 
-import (
-	"github.com/gin-gonic/gin"
-)
+import "github.com/gin-gonic/gin"
 
-// SetupRoutes configura as rotas da aplicação
+// RegisterRoutes registra rotas do módulo
 func RegisterRoutes(r *gin.Engine, handler *Handler) {
 
-	group := r.Group("/users")
+	submissions := r.Group("/submissions")
 
-	group.POST("/", handler.Create)
-	group.GET("/:id", handler.FindByID)
-	group.GET("/", handler.FindAll)
-
+	{
+		submissions.POST("/", handler.Create)
+		submissions.GET("/", handler.FindAll)
+	}
 }
