@@ -31,3 +31,30 @@ go.work.sum
 # .idea/
 # .vscode/
 .vscode/settings.json
+
+
+# =========================
+# FRONTEND (REACT / VITE)
+# =========================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Env files
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# =========================
+# OS / IDE
+# =========================
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
