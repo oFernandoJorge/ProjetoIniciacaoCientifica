@@ -1,9 +1,19 @@
 package spreadsheet
 
-// Service contém regras de processamento
-type Service struct{}
+// ProcessSpreadsheet processa Excel
+func ProcessSpreadsheet(
+	filePath string,
+) ([]SpreadsheetRow, error) {
 
-// NewService cria service
-func NewService() *Service {
-	return &Service{}
+	rows, err := ReadSpreadsheet(
+		filePath,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	submissions := ParseRows(rows)
+
+	return submissions, nil
 }

@@ -1,26 +1,47 @@
 package spreadsheet
 
-import (
-	"fmt"
-	"github.com/xuri/excelize/v2"
-)
+// ParseRows converte linhas em structs
+func ParseRows(
+	rows [][]string,
+) []SpreadsheetRow {
 
-// ParseSpreadsheet lê planilha Excel
-func ParseSpreadsheet(path string) error {
-	file, err := excelize.OpenFile(path)
-	if err != nil {
-		return err
-	}
-	sheets := file.GetSheetList()
-	for _, sheet := range sheets {
-		rows, err := file.GetRows(sheet)
-		if err != nil {
-			return err
+	var submissions []SpreadsheetRow
+
+	for index, row := range rows {
+
+		// Ignora cabeçalho
+		if index == 0 {
+			continue
 		}
-		fmt.Println("Sheet:", sheet)
-		for _, row := range rows {
-			fmt.Println(row)
+
+		// Evita linhas incompletas
+		if len(row) < 8 {
+			continue
 		}
+
+		submission := SpreadsheetRow{
+			Title: row[0],
+
+			PresenterName: row[1],
+
+			Course: row[2],
+
+			KnowledgeArea: row[3],
+
+			Modality: row[4],
+
+			Campus: row[5],
+
+			AdvisorName: row[6],
+
+			PresentationType: row[7],
+		}
+
+		submissions = append(
+			submissions,
+			submission,
+		)
 	}
-	return nil
+
+	return submissions
 }
