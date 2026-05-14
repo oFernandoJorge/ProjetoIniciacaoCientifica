@@ -7,6 +7,8 @@
 *.dll
 *.so
 *.dylib
+*.pdf
+*.xlsx
 
 # Test binary, built with `go test -c`
 *.test
@@ -30,3 +32,31 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+.vscode/settings.json
+
+
+# =========================
+# FRONTEND (REACT / VITE)
+# =========================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Env files
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# =========================
+# OS / IDE
+# =========================
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/

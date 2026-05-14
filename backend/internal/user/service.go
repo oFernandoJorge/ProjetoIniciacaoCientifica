@@ -1,75 +1,63 @@
 package user
 
 import (
+	"ProjetoIniciacaoCientifica/internal/auth"
 	"errors"
 )
 
-// UserService concentra as regras de negócio relacionadas aos usuários
-//
-// Camada responsável por fazr ponte entre:
-//
-// handlers < - > repositories
+// Service contém regras de negócio
 type Service struct {
-	Repo Repository
+	repo Repository
 }
 
-
-// NewUserService cria uma nova instância do UserService
+// NewService injeta dependência
 func NewService(repo Repository) *Service {
-	return &Service{Repo: repo}
+	return &Service{
+		repo: repo,
+	}
 }
 
-// CreateUser raliza validações de negócio antes de criar um usuário
+// Create cria novo usuário
 func (s *Service) Create(user *User) error {
-
 	if user.Name == "" {
-		return errors.New("O nome do usuário é obrigatório")
+		return errors.New("nome obrigatório")
 	}
-
 	if user.Email == "" {
-		return errors.New("O email do usuário é obrigatório")
-	}
+		return errors.New("email obrigatório")
 
-	if user.Password == "" {
-		return errors.New("A senha do usuário é obrigatória")
 	}
-
 	validRoles := map[string]bool{
 		"admin":       true,
-		"coordenador": true,
-		"avaliador":   true,
 		"aluno":       true,
+		"avaliador":   true,
+		"coordenador": true,
 	}
-
 	if !validRoles[user.Role] {
-		return errors.New("O papel do usuário é inválido")
+		return errors.New("role inválida")
 	}
-
-	//Chama repository para persistir usuário
-	return s.Repo.Create(user)
+	// Gera hash seguro da senha
+	hashedPassword, err := auth.HashPassword(user.Password)
+	if err != nil {
+		return err
+	}
+	user.Password = hashedPassword
+	return s.repo.Create(user)
 }
 
-// GetAllUsers retorna todos os usuários cadastrados
+// FindAll retorna todos usuários
 func (s *Service) FindAll() ([]UserResponse, error) {
-	
-	users, err := s.Repo.FindAll()
+	users, err := s.repo.FindAll()
 	if err != nil {
 		return nil, err
 	}
-
-	var responses []UserResponse
+	var response []UserResponse
 	for _, u := range users {
-		responses = append(responses, UserResponse{
+		response = append(response, UserResponse{
 			ID:    u.ID,
 			Name:  u.Name,
 			Email: u.Email,
 			Role:  u.Role,
 		})
 	}
-	return responses, nil
-}
-
-// GetUserByID busca usuário por ID
-func (s *Service) FindByID(id uint) (*User, error) {
-	return s.Repo.FindByID(id)
+	return response, nil
 }
