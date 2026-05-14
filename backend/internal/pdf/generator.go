@@ -181,84 +181,100 @@ func GeneratePresentationSchedulePDF(request GeneratePresentationPdfRequest, out
 
 		// Logos alinhadas horizontalmente
 		pdf.SetTextColor(255, 255, 255)
-		
+
 		// Lado Esquerdo: CNX CONEXÃO
 		pdf.SetXY(15, 8)
-		pdf.SetFont("Arial", "B", 40)
+		pdf.SetFont("Times", "B", 40)
 		pdf.Cell(0, 20, "CNX")
-		
+
 		pdf.SetXY(55, 12)
-		pdf.SetFont("Arial", "B", 18)
+		pdf.SetFont("Times", "B", 18)
 		pdf.Cell(0, 10, tr("CONEXÃO"))
 		pdf.SetXY(55, 19)
-		pdf.SetFont("Arial", "", 10)
+		pdf.SetFont("Times", "", 10)
 		pdf.Cell(0, 10, "UNIFAMETRO")
 
 		// Lado Direito: Unifametro
 		pdf.SetXY(210, 10)
-		pdf.SetFont("Arial", "B", 24)
+		pdf.SetFont("Times", "B", 24)
 		pdf.Cell(0, 12, "Unifametro")
 		pdf.SetXY(210, 20)
-		pdf.SetFont("Arial", "I", 9)
+		pdf.SetFont("Times", "I", 9)
 		pdf.Cell(0, 10, tr("Formar para Transformar"))
-		
+
 		pdf.SetTextColor(0, 0, 0)
 	})
 
 	pdf.SetFooterFunc(func() {
 		pdf.SetY(-22)
-		pdf.SetFont("Arial", "I", 8)
-		pdf.SetFillColor(255, 255, 150) // Amarelo
-		
+		pdf.SetFont("Times", "I", 8)
+		pdf.SetFillColor(255, 255, 0) // Amarelo
+
 		text1 := tr("*Caso o apresentador não possa estar presente no horário, outro autor do mesmo trabalho poderá apresentá-lo.")
 		text2 := tr("(é obrigatório o apresentador estar inscrito e estar usando o crachá do evento).")
-		
+
 		w1 := pdf.GetStringWidth(text1) + 4
 		pdf.SetX((297 - w1) / 2)
 		pdf.CellFormat(w1, 5, text1, "", 1, "C", true, 0, "")
-		
+
 		w2 := pdf.GetStringWidth(text2) + 4
 		pdf.SetX((297 - w2) / 2)
 		pdf.CellFormat(w2, 5, text2, "", 1, "C", true, 0, "")
 	})
 
 	pdf.SetTitle("Organizador de Salas", false)
-	pdf.SetMargins(10, 45, 10) // Margem superior maior por causa do header
+	pdf.SetMargins(10, 10, 10) 
 	pdf.SetAutoPageBreak(true, 30)
 
 	for i, item := range request.Items {
 		pdf.AddPage()
 
-		// 2. Título da Sessão
-		pdf.SetFont("Arial", "B", 11)
-		sessionTitle := fmt.Sprintf("SESSÃO %02d - (%s)", i+1, item.PresentationType)
-		pdf.CellFormat(0, 8, tr(sessionTitle), "", 1, "C", false, 0, "")
+		// Posição inicial do conteúdo (Abaixo da faixa verde de 35mm)
+		pdf.SetY(40) 
 
-		// 3. Metadados
-		pdf.SetFont("Arial", "B", 9)
+		// 2. Título da Sessão
+		pdf.SetFont("Times", "B", 11)
+		sessionTitle := fmt.Sprintf("SESSÃO %02d – (%s)", i+1, item.PresentationType)
+		pdf.CellFormat(277, 7, tr(sessionTitle), "", 1, "C", false, 0, "")
+
+		// 3. Metadados (DATA, TURNO, SALA, ÁREA)
+		pdf.SetFont("Times", "B", 9)
 		metadata := fmt.Sprintf("DATA: %s TURNO: %s SALA: %s / ÁREA DE CONHECIMENTO: %s",
 			request.Date, request.Turn, item.RoomName, item.KnowledgeArea)
-		pdf.CellFormat(0, 6, tr(metadata), "", 1, "C", false, 0, "")
+		// MultiCell para evitar corte se a Área for muito grande
+		pdf.MultiCell(277, 5, tr(metadata), "", "C", false)
 
 		// 4. Curso
 		if len(item.Courses) > 0 {
-			pdf.SetFont("Arial", "B", 9)
+			pdf.SetFont("Times", "B", 9)
 			coursesText := fmt.Sprintf("Curso(s): %s", strings.Join(item.Courses, " / "))
-			pdf.CellFormat(0, 6, tr(coursesText), "", 1, "C", false, 0, "")
+			// MultiCell é essencial aqui pois a lista de cursos pode ser enorme
+			pdf.MultiCell(277, 5, tr(coursesText), "", "C", false)
 		}
 
 		pdf.Ln(4)
 
 		// 5. Cabeçalho da Tabela
 		pdf.SetFillColor(244, 164, 96)
-		pdf.SetFont("Arial", "B", 9)
+		pdf.SetFont("Times", "B", 9)
 		pdf.CellFormat(30, 8, tr("HORÁRIO"), "1", 0, "C", true, 0, "")
 		pdf.CellFormat(170, 8, tr("Título"), "1", 0, "C", true, 0, "")
 		pdf.CellFormat(77, 8, tr("Nome do apresentador"), "1", 1, "C", true, 0, "")
 
 		// 6. Linhas da Tabela
-		pdf.SetFont("Arial", "B", 9)
+		pdf.SetFont("Times", "B", 9)
 		for _, row := range item.Submissions {
+			// Verifica se a próxima linha cabe na página (Margem de segurança)
+			if pdf.GetY() > 175 { 
+				pdf.AddPage()
+				pdf.SetY(40) // Reinicia posição após o header automático
+				
+				// Opcional: Repetir cabeçalho da tabela na nova página
+				pdf.SetFillColor(244, 164, 96)
+				pdf.CellFormat(30, 8, tr("HORÁRIO"), "1", 0, "C", true, 0, "")
+				pdf.CellFormat(170, 8, tr("Título"), "1", 0, "C", true, 0, "")
+				pdf.CellFormat(77, 8, tr("Nome do apresentador"), "1", 1, "C", true, 0, "")
+			}
 			writeStyledRow(pdf, row.Time, row.Title, row.PresenterName, tr)
 		}
 	}
@@ -277,7 +293,7 @@ func writeStyledRow(pdf *gofpdf.Fpdf, timeValue, title, presenter string, tr fun
 	// Calcula a altura necessária
 	titleLines := pdf.SplitLines([]byte(title), 170)
 	presenterLines := pdf.SplitLines([]byte(presenter), 77)
-	
+
 	maxLines := len(titleLines)
 	if len(presenterLines) > maxLines {
 		maxLines = len(presenterLines)
@@ -308,7 +324,7 @@ func writeStyledRow(pdf *gofpdf.Fpdf, timeValue, title, presenter string, tr fun
 	presenterY := y + (cellHeight - float64(len(presenterLines))*rowHeight)/2
 	pdf.SetXY(x+30+170, presenterY)
 	pdf.MultiCell(77, rowHeight, presenter, "", "C", false)
-	
+
 	pdf.SetY(y + cellHeight)
 }
 
