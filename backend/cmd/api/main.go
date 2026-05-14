@@ -8,6 +8,7 @@ import (
 
 	"ProjetoIniciacaoCientifica/internal/config"
 	"ProjetoIniciacaoCientifica/internal/evaluator"
+	"ProjetoIniciacaoCientifica/internal/pdf"
 	"ProjetoIniciacaoCientifica/internal/room"
 	"ProjetoIniciacaoCientifica/internal/session"
 	"ProjetoIniciacaoCientifica/internal/submission"
@@ -50,6 +51,7 @@ func main() {
 	// =========================
 
 	r := gin.Default()
+	r.Use(corsMiddleware())
 
 	// Health check
 	r.GET("/health", func(c *gin.Context) {
@@ -82,6 +84,14 @@ func main() {
 	submissionHandler := submission.NewHandler(submissionService)
 
 	submission.RegisterRoutes(r, submissionHandler)
+
+	// =========================
+	// PDF MODULE
+	// =========================
+
+	pdfHandler := pdf.NewHandler()
+
+	pdf.RegisterRoutes(r, pdfHandler)
 
 	// =========================
 	// ROOM MODULE
@@ -125,4 +135,20 @@ func main() {
 	log.Println("Server running on port 8080")
 
 	log.Fatal(r.Run(":8080"))
+}
+
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization")
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Disposition")
+
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+
+		c.Next()
+	}
 }

@@ -14,27 +14,20 @@ func ParseRows(
 			continue
 		}
 
-		// Evita linhas incompletas
-		if len(row) < 8 {
+		// Evita linhas incompletas (necessário até o índice 24)
+		if len(row) < 25 {
 			continue
 		}
 
 		submission := SpreadsheetRow{
-			Title: row[0],
-
-			PresenterName: row[1],
-
-			Course: row[2],
-
-			KnowledgeArea: row[3],
-
-			Modality: row[4],
-
-			Campus: row[5],
-
-			AdvisorName: row[6],
-
-			PresentationType: row[7],
+			Title:            row[1],
+			PresenterName:    row[5],
+			Course:           row[23],
+			KnowledgeArea:    row[22],
+			Modality:         row[10],
+			Campus:           row[24],
+			AdvisorName:      row[2],
+			PresentationType: row[10],
 		}
 
 		submissions = append(
