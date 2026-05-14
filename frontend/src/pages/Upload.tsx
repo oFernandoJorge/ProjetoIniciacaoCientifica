@@ -35,6 +35,13 @@ type RoomAllocation = {
   submissions: SubmissionRow[];
 };
 
+function normalizeText(value: string) {
+  return String(value || "")
+    .toUpperCase()
+    .replace(/[.]/g, "") // Remove pontos
+    .trim();
+}
+
 function parseSpreadsheetRows(rows: unknown[][]): SubmissionRow[] {
   const submissions: SubmissionRow[] = [];
 
@@ -61,8 +68,8 @@ function parseSpreadsheetRows(rows: unknown[][]): SubmissionRow[] {
     submissions.push({
       title: String(row[1] ?? "").trim(),
       presenterName: String(row[5] ?? "").trim(),
-      course: String(row[23] ?? "").trim(),
-      knowledgeArea: String(row[22] ?? "").trim(),
+      course: normalizeText(String(row[23] ?? "")),
+      knowledgeArea: normalizeText(String(row[22] ?? "")),
       modality: String(row[10] ?? "").trim(),
       campus: String(row[24] ?? "").trim(),
       advisorName: String(row[2] ?? "").trim(),
@@ -77,21 +84,23 @@ function generateRooms(): Room[] {
   const rooms: Room[] = [];
 
   for (let floor = 2; floor <= 5; floor += 1) {
+    // Salas 201 a 210: E-POSTER (5 min)
     for (let roomNumber = 1; roomNumber <= 10; roomNumber += 1) {
       rooms.push({
-        name: `Sala ${floor}0${roomNumber}`,
+        name: `Sala ${floor}${roomNumber.toString().padStart(2, "0")}`,
         floor,
         presentationType: "E-POSTER",
-        capacity: 12,
+        capacity: 12, // Ex: 12 apresentações de 5 min em 1 hora
       });
     }
 
+    // Salas 211 a 220: ORAL (20 min)
     for (let roomNumber = 11; roomNumber <= 20; roomNumber += 1) {
       rooms.push({
-        name: `Sala ${floor}${roomNumber}`,
+        name: `Sala ${floor}${roomNumber.toString().padStart(2, "0")}`,
         floor,
         presentationType: "ORAL",
-        capacity: 6,
+        capacity: 6, // Ex: 6 apresentações de 20 min em 2 horas
       });
     }
   }
@@ -102,8 +111,9 @@ function generateRooms(): Room[] {
 function normalizePresentationType(value: string) {
   const normalized = String(value || "")
     .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove acentos (ex: PÔSTER -> POSTER)
     .replace(/\s+/g, " ")
-    .replace(/[-_]/g, " ")
     .trim();
 
   if (normalized.includes("POSTER")) {
@@ -114,7 +124,7 @@ function normalizePresentationType(value: string) {
     return "ORAL";
   }
 
-  return normalized || "UNKNOWN";
+  return "ORAL"; // Default seguro
 }
 
 function formatScheduleTime(index: number, turn: string) {
@@ -185,10 +195,12 @@ function allocateRooms(groups: SubmissionGroup[], rooms: Room[]): RoomAllocation
       continue;
     }
 
-    const selectedRoom = compatibleRooms[roomIndex % compatibleRooms.length];
-    const capacity = selectedRoom.capacity;
-
-    for (let i = 0; i < group.submissions.length; i += capacity) {
+    let i = 0;
+    while (i < group.submissions.length) {
+      // Pega a próxima sala disponível
+      const selectedRoom = compatibleRooms[roomIndex % compatibleRooms.length];
+      const capacity = selectedRoom.capacity;
+      
       const end = Math.min(i + capacity, group.submissions.length);
 
       allocations.push({
@@ -199,6 +211,9 @@ function allocateRooms(groups: SubmissionGroup[], rooms: Room[]): RoomAllocation
         submissions: group.submissions.slice(i, end),
       });
 
+      // Pula para o próximo bloco de alunos
+      i += capacity;
+      // Pula para a PRÓXIMA sala
       roomIndex += 1;
     }
   }
@@ -306,17 +321,14 @@ export function Upload() {
       const blob = new Blob([response.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
 
-      // Abre o PDF em uma nova aba
       const link = document.createElement("a");
       link.href = url;
       link.target = "_blank";
-      // Opcional: define um nome para o arquivo se o navegador decidir baixar
       link.download = "organizador-de-salas.pdf";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      // Limpa a URL da memória após um tempo
       setTimeout(() => window.URL.revokeObjectURL(url), 100);
     } catch (err) {
       setError("Erro ao gerar ou baixar o PDF. Verifique se o backend está rodando.");
@@ -324,49 +336,55 @@ export function Upload() {
     }
   };
 
-  return (
-    <main className="page-container">
-      <header className="page-header">
-        <div>
-          <p className="eyebrow">Organizador de Ensalamento</p>
-          <h1>Envie a planilha do outro sistema</h1>
-          <p className="lead">
-            O sistema irá ler a planilha, agrupar por área de conhecimento e tipo de apresentação, e alocar cada grupo em salas.
-          </p>
-        </div>
-      </header>
+  const maxStudents = useMemo(() => {
+    return Math.max(...allocations.map(a => a.submissions.length), 1);
+  }, [allocations]);
 
-      <section className="page-grid">
-        <article className="card">
+  return (
+    <main className="app-shell">
+      <div className="page-container">
+        <header className="page-header">
+          <p className="eyebrow">Sistema de Ensalamento</p>
+          <h1>Organizador de Apresentações</h1>
+          <p className="lead">
+            Gerencie o ensalamento acadêmico de forma automatizada, respeitando áreas de conhecimento e turnos.
+          </p>
+        </header>
+
+        <div className="card">
           <div className="card-header">
-            <h2>Controle de planilha</h2>
-            <span className="badge">Formato esperado: 8 colunas</span>
+            <h3>Configurações e Upload</h3>
+            <span className="badge">Excelize Engine</span>
           </div>
 
           <div className="form-grid">
-            <label>
-              Selecione a planilha
-              <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileChange} />
-            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <label>
+                Selecione a planilha (.xlsx)
+                <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileChange} />
+              </label>
 
-            <label>
-              Data da sessão
-              <input type="text" value={scheduleDate} onChange={(event) => setScheduleDate(event.target.value)} />
-            </label>
+              <label>
+                Data do Evento
+                <input type="text" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} />
+              </label>
+            </div>
 
-            <label>
-              Turno
-              <input type="text" value={scheduleTurn} onChange={(event) => setScheduleTurn(event.target.value)} />
-            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <label>
+                Turno
+                <input type="text" value={scheduleTurn} onChange={(e) => setScheduleTurn(e.target.value)} />
+              </label>
 
-            <label>
-              Campus
-              <input type="text" value={scheduleCampus} onChange={(event) => setScheduleCampus(event.target.value)} />
-            </label>
+              <label>
+                Campus
+                <input type="text" value={scheduleCampus} onChange={(e) => setScheduleCampus(e.target.value)} />
+              </label>
+            </div>
 
-            <div className="form-actions">
-              <button type="button" onClick={handleProcess} className="primary-button">
-                Organizar planilha
+            <div style={{ marginTop: '12px' }}>
+              <button type="button" onClick={handleProcess} className="primary-button" style={{ width: '100%' }}>
+                Processar e Organizar Salas
               </button>
             </div>
 
@@ -374,35 +392,39 @@ export function Upload() {
             {warning && <p className="message error">{warning}</p>}
             {error && <p className="message error">{error}</p>}
           </div>
-        </article>
+        </div>
 
-        <article className="card">
-          <div className="card-header">
-            <h2>Resultado de alocação</h2>
-            {allocations.length > 0 && <span className="badge">Salas geradas: {allocations.length}</span>}
+        {allocations.length > 0 && (
+          <div className="card" style={{ textAlign: 'center' }}>
+            <div className="card-header">
+              <h3>Documentação Pronta</h3>
+              <p className="lead">Tudo pronto para gerar o PDF oficial do evento.</p>
+            </div>
+
+            <button type="button" onClick={handleDownloadPdf} className="secondary-button" style={{ width: '100%', marginBottom: '32px' }}>
+              Baixar Grade de Apresentações (PDF)
+            </button>
+
+            <div className="chart-container">
+              <h3 style={{ marginBottom: '24px', fontSize: '1rem' }}>Distribuição de Alunos por Sala</h3>
+              <div className="chart-bars">
+                {allocations.map((allocation, i) => (
+                  <div key={i} className="chart-bar-wrapper">
+                    <div 
+                      className="chart-bar" 
+                      style={{ height: `${(allocation.submissions.length / maxStudents) * 100}%` }}
+                      title={`${allocation.roomName}: ${allocation.submissions.length} alunos`}
+                    >
+                      <span className="chart-bar-value">{allocation.submissions.length}</span>
+                    </div>
+                    <span className="chart-bar-label">{allocation.roomName.replace("Sala ", "")}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-
-          {allocations.length === 0 ? (
-            <div className="empty-state">
-              Faça upload da planilha e clique em "Organizar planilha" para preparar o PDF.
-            </div>
-          ) : (
-            <div className="actions-column">
-              <p className="lead" style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                A alocação foi concluída com sucesso. Clique no botão abaixo para gerar o documento final.
-              </p>
-              <button 
-                type="button" 
-                onClick={handleDownloadPdf} 
-                className="secondary-button"
-                style={{ width: '100%', padding: '1.5rem', fontSize: '1.2rem' }}
-              >
-                Gerar PDF das Salas
-              </button>
-            </div>
-          )}
-        </article>
-      </section>
+        )}
+      </div>
     </main>
   );
 }
